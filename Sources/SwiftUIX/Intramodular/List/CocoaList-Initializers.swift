@@ -12,36 +12,42 @@ extension CocoaList {
         _ data: Data,
         sectionHeader: @escaping (SectionType) -> SectionHeader,
         sectionFooter: @escaping (SectionType) -> SectionFooter,
-        rowContent: @escaping (_Item) -> RowContent
+        rowContent: @escaping (_Item) -> RowContent,
+        scrollPosition: Binding<ListScrollPosition> = Binding.constant(ListScrollPosition())
     ) where ItemType == _HashIdentifiableValue<_Item> {
         self.data = data
         self.sectionHeader = sectionHeader
         self.sectionFooter = sectionFooter
         self.rowContent = { rowContent($0.value) }
+        self.scrollPosition = scrollPosition
     }
     
     public init<_SectionType: Hashable, _Item: Hashable>(
         _ data: Data,
         sectionHeader: @escaping (_SectionType) -> SectionHeader,
         sectionFooter: @escaping (_SectionType) -> SectionFooter,
-        rowContent: @escaping (_Item) -> RowContent
+        rowContent: @escaping (_Item) -> RowContent,
+        scrollPosition: Binding<ListScrollPosition> = Binding.constant(ListScrollPosition())
     ) where SectionType == _HashIdentifiableValue<_SectionType>, ItemType == _HashIdentifiableValue<_Item> {
         self.data = data
         self.sectionHeader = { sectionHeader($0.value) }
         self.sectionFooter = { sectionFooter($0.value) }
         self.rowContent = { rowContent($0.value) }
+        self.scrollPosition = scrollPosition
     }
     
     public init<_SectionType: Hashable, _Item: Hashable>(
         _ data: [ListSection<_SectionType, _Item>],
         sectionHeader: @escaping (_SectionType) -> SectionHeader,
         sectionFooter: @escaping (_SectionType) -> SectionFooter,
-        rowContent: @escaping (_Item) -> RowContent
+        rowContent: @escaping (_Item) -> RowContent,
+        scrollPosition: Binding<ListScrollPosition> = Binding.constant(ListScrollPosition())
     ) where Data == Array<ListSection<SectionType, ItemType>>, SectionType == _HashIdentifiableValue<_SectionType>, ItemType == _HashIdentifiableValue<_Item> {
         self.data = data.map({ .init(model: .init($0.model), items: $0.items.map(_HashIdentifiableValue.init)) })
         self.sectionHeader = { sectionHeader($0.value) }
         self.sectionFooter = { sectionFooter($0.value) }
         self.rowContent = { rowContent($0.value) }
+        self.scrollPosition = scrollPosition
     }
 }
 
@@ -53,13 +59,15 @@ extension CocoaList where SectionType == _KeyPathHashIdentifiableValue<Int, Int>
     >(
         _ items: Items,
         id: KeyPath<_ItemType, _ItemID>,
-        @ViewBuilder rowContent: @escaping (_ItemType) -> RowContent
+        @ViewBuilder rowContent: @escaping (_ItemType) -> RowContent,
+        scrollPosition: Binding<ListScrollPosition> = Binding.constant(ListScrollPosition())
     ) where Data == AnyRandomAccessCollection<ListSection<SectionType, ItemType>>, Items.Element == _ItemType, ItemType == _KeyPathHashIdentifiableValue<_ItemType, _ItemID> {
         self.init(
             AnyRandomAccessCollection([ListSection(_KeyPathHashIdentifiableValue(value: 0, keyPath: \.self), items: items.elements(identifiedBy: id))]),
             sectionHeader: Never._SwiftUIX_produce,
             sectionFooter: Never._SwiftUIX_produce,
-            rowContent: { rowContent($0.value) }
+            rowContent: { rowContent($0.value) },
+            scrollPosition: scrollPosition
         )
     }
 }
@@ -67,7 +75,8 @@ extension CocoaList where SectionType == _KeyPathHashIdentifiableValue<Int, Int>
 extension CocoaList where Data: RangeReplaceableCollection, SectionType == _KeyPathHashIdentifiableValue<Int, Int>, SectionHeader == Never, SectionFooter == Never {
     public init<Items: RandomAccessCollection>(
         _ items: Items,
-        @ViewBuilder rowContent: @escaping (ItemType) -> RowContent
+        @ViewBuilder rowContent: @escaping (ItemType) -> RowContent,
+        scrollPosition: Binding<ListScrollPosition> = Binding.constant(ListScrollPosition())
     ) where Items.Element == ItemType {
         var data = Data()
         
@@ -77,12 +86,14 @@ extension CocoaList where Data: RangeReplaceableCollection, SectionType == _KeyP
             data,
             sectionHeader: Never._SwiftUIX_produce,
             sectionFooter: Never._SwiftUIX_produce,
-            rowContent: rowContent
+            rowContent: rowContent,
+            scrollPosition: scrollPosition
         )
     }
     
     public init<Items: RandomAccessCollection>(
-        @ViewBuilder content: @escaping () -> ForEach<Items, ItemType.ID, RowContent>
+        @ViewBuilder content: @escaping () -> ForEach<Items, ItemType.ID, RowContent>,
+        scrollPosition: Binding<ListScrollPosition> = Binding.constant(ListScrollPosition())
     ) where Items.Element == ItemType, Data == Array<ListSection<SectionType, ItemType>> {
         var data = Data()
         
@@ -94,7 +105,8 @@ extension CocoaList where Data: RangeReplaceableCollection, SectionType == _KeyP
             data,
             sectionHeader: Never._SwiftUIX_produce,
             sectionFooter: Never._SwiftUIX_produce,
-            rowContent: content.content
+            rowContent: content.content,
+            scrollPosition: scrollPosition
         )
     }
 }
@@ -103,13 +115,15 @@ extension CocoaList where Data == Array<ListSection<SectionType, ItemType>>, Sec
 {
     public init<Items: RandomAccessCollection>(
         _ items: Items,
-        @ViewBuilder rowContent: @escaping (ItemType) -> RowContent
+        @ViewBuilder rowContent: @escaping (ItemType) -> RowContent,
+        scrollPosition: Binding<ListScrollPosition> = Binding.constant(ListScrollPosition())
     ) where Items.Element == ItemType {
         self.init(
             [.init(_KeyPathHashIdentifiableValue(value: 0, keyPath: \.self), items: items)],
             sectionHeader: Never._SwiftUIX_produce,
             sectionFooter: Never._SwiftUIX_produce,
-            rowContent: rowContent
+            rowContent: rowContent,
+            scrollPosition: scrollPosition
         )
     }
 }

@@ -201,14 +201,13 @@ public class _PlatformTableViewController<SectionModel: Identifiable, ItemType: 
         
         prototypeSectionHeader.update()
         
-        let height = prototypeSectionHeader
+        var height = max(1, prototypeSectionHeader
             .contentHostingController
             .sizeThatFits(in: CGSize(width: tableView.bounds.width, height: UIView.layoutFittingExpandedSize.height))
-            .height
+            .height)
         
         _sectionHeaderContentHeightCache[model.id] = height
-        
-        return max(1, height)
+        return height
     }
     
     override public func tableView(
@@ -255,14 +254,13 @@ public class _PlatformTableViewController<SectionModel: Identifiable, ItemType: 
         
         prototypeSectionFooter.update()
         
-        let height = prototypeSectionFooter
+        var height = max(1, prototypeSectionFooter
             .contentHostingController
             .sizeThatFits(in: CGSize(width: tableView.bounds.width, height: UIView.layoutFittingExpandedSize.height))
-            .height
-        
+            .height)
         _sectionFooterContentHeightCache[model.id] = height
         
-        return max(1, height)
+        return height
     }
     
     override public func tableView(
@@ -435,6 +433,12 @@ extension _PlatformTableViewController {
         }
         
         tableView.endUpdates()
+    }
+    
+    public func scroll(scrollPosition: ListScrollPosition) {
+        //tableView.beginUpdates()
+        tableView.scrollToRow(at: scrollPosition.indexPath, at: scrollPosition.anchor, animated: scrollPosition.animated)
+        //tableView.endUpdates()
     }
 }
 

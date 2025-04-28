@@ -41,17 +41,21 @@ public struct CocoaList<
     var scrollViewConfiguration: CocoaScrollViewConfiguration<AnyView> = nil
     @usableFromInline
     var _cocoaListPreferences: _CocoaListPreferences = nil
+    
+    public var scrollPosition: Binding<ListScrollPosition>
 
     public init(
         _ data: Data,
         sectionHeader: @escaping (SectionType) -> SectionHeader,
         sectionFooter: @escaping (SectionType) -> SectionFooter,
-        rowContent: @escaping (ItemType) -> RowContent
+        rowContent: @escaping (ItemType) -> RowContent,
+        scrollPosition: Binding<ListScrollPosition> = Binding.constant(ListScrollPosition())
     ) {
         self.data = data
         self.sectionHeader = sectionHeader
         self.sectionFooter = sectionFooter
         self.rowContent = rowContent
+        self.scrollPosition = scrollPosition
     }
     
     public func makeUIViewController(
@@ -88,6 +92,14 @@ public struct CocoaList<
         #endif
         
         uiViewController.reloadData()
+        if scrollPosition.wrappedValue.activate {
+            uiViewController.scroll(scrollPosition: scrollPosition.wrappedValue)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                var scrollPosition = scrollPosition.wrappedValue
+                scrollPosition.activate = false
+                self.scrollPosition.wrappedValue = scrollPosition
+            })
+        }
     }
 }
 
