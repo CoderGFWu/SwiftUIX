@@ -94,7 +94,7 @@ public struct CocoaList<
         uiViewController.reloadData()
         if scrollPosition.wrappedValue.activate {
             uiViewController.scroll(scrollPosition: scrollPosition.wrappedValue)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + scrollPosition.wrappedValue.restoreDelay, execute: {
                 var scrollPosition = scrollPosition.wrappedValue
                 scrollPosition.activate = false
                 self.scrollPosition.wrappedValue = scrollPosition
